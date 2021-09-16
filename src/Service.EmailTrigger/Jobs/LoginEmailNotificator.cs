@@ -45,7 +45,7 @@ namespace Service.EmailTrigger.Jobs
                         Platform = pd.PersonalData.PlatformType,
                         Email = pd.PersonalData.Email,
                         Ip = auditEvent.Session.IP,
-                        LoginTime = auditEvent.Session.CreateTime.ToString(CultureInfo.InvariantCulture)
+                        LoginTime = auditEvent.Session.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
                     }).AsTask();
                     taskList.Add(task);
                 }
