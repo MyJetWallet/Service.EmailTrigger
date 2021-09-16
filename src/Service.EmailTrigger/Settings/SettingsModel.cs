@@ -13,5 +13,14 @@ namespace Service.EmailTrigger.Settings
 
         [YamlProperty("EmailTrigger.ElkLogs")]
         public LogElkSettings ElkLogs { get; set; }
+        
+        [YamlProperty("EmailTrigger.AuthServiceBusHostPort")]
+        public string AuthServiceBusHostPort { get; set; }
+
+        [YamlProperty("EmailTrigger.EmailSenderGrpcServiceUrl")]
+        public string EmailSenderGrpcServiceUrl { get; set; }
+        
+        [YamlProperty("EmailTrigger.PersonalDataServiceUrl")]
+        public string PersonalDataServiceUrl { get; set; }
     }
 }
