@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>0c603974-17fb-4950-8dce-d5d3c3d629e8</UserSecretsId>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,11 +18,11 @@
     <PackageReference Include="MyJetWallet.Sdk.GrpcSchema" Version="1.0.6" />
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="1.5.5" />
     <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="1.0.4" />
+    <PackageReference Include="MyJetWallet.Service.EmailSender.Client" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.1" />
     <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.0.152" />
     <PackageReference Include="SimpleTrading.BaseMetrics" Version="1.0.3" />
-    <PackageReference Include="SimpleTrading.EmailSender.Grpc" Version="1.0.31" />
     <PackageReference Include="SimpleTrading.PersonalData.Grpc" Version="1.0.50" />
     <PackageReference Include="SimpleTrading.ServiceStatusReporterConnector" Version="1.0.9" />
     <PackageReference Include="MySettingsReader" Version="1.2.1" />
