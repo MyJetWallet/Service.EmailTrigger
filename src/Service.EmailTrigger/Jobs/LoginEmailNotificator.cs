@@ -5,7 +5,8 @@ using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Authorization.ServiceBus;
 using Service.EmailSender.Grpc;
-using SimpleTrading.PersonalData.Grpc;
+using Service.PersonalData.Grpc;
+using Service.PersonalData.Grpc.Contracts;
 
 namespace Service.EmailTrigger.Jobs
 {
@@ -33,7 +34,10 @@ namespace Service.EmailTrigger.Jobs
             
             foreach (var auditEvent in events.Where(e => e.Action == SessionAuditEvent.SessionAction.Login))
             {
-                var pd = await _personalDataService.GetByIdAsync(auditEvent.Session.TraderId);
+                var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                {
+                    Id = auditEvent.Session.TraderId
+                });
                 if (pd.PersonalData != null)
                 {
                     var task = _emailSender.SendLoginEmailAsync(new ()
