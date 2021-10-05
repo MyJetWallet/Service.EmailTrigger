@@ -22,5 +22,8 @@ namespace Service.EmailTrigger.Settings
         
         [YamlProperty("EmailTrigger.PersonalDataServiceUrl")]
         public string PersonalDataServiceUrl { get; set; }
+        
+        [YamlProperty("EmailTrigger.SpotServiceBusHostPort")]
+        public string SpotServiceBusHostPort { get; set; }
     }
 }
