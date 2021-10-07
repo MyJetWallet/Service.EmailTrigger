@@ -40,7 +40,7 @@ namespace Service.EmailTrigger.Jobs
         {
             var taskList = new List<Task>();
             
-            foreach (var auditEvent in events.Where(e => e.Action == SessionAuditEvent.SessionAction.Login))
+            foreach (var auditEvent in events.Where(e => e.Action == SessionAuditEvent.SessionAction.Login && !e.Session.Description.Contains("Registration")))
             {
                 var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
                 {
