@@ -8,6 +8,7 @@ using Service.EmailSender.Grpc;
 using Service.PersonalData.Grpc;
 using Service.PersonalData.Grpc.Contracts;
 using Service.Registration.Domain.Models;
+using Service.VerificationCodes.Grpc;
 
 namespace Service.EmailTrigger.Jobs
 {
@@ -16,17 +17,19 @@ namespace Service.EmailTrigger.Jobs
         private readonly IEmailSenderService _emailSender;
         private readonly ILogger<EmailNotificator> _logger;
         private readonly IPersonalDataServiceGrpc _personalDataService;
+        private readonly IEmailVerificationCodes _verificationCodes;
 
         public EmailNotificator(ILogger<EmailNotificator> logger,
             ISubscriber<IReadOnlyList<SessionAuditEvent>> sessionAudit, 
             ISubscriber<IReadOnlyList<ClientRegisterMessage>> registerSubscriber, 
             ISubscriber<IReadOnlyList<ClientRegisterFailAlreadyExistsMessage>> failSubscriber,
             IEmailSenderService emailSender, 
-            IPersonalDataServiceGrpc personalDataService)
+            IPersonalDataServiceGrpc personalDataService, IEmailVerificationCodes verificationCodes)
         {
             _logger = logger;
             _emailSender = emailSender;
             _personalDataService = personalDataService;
+            _verificationCodes = verificationCodes;
 
             sessionAudit.Subscribe(HandleEvent);
             registerSubscriber.Subscribe(HandleEvent);
@@ -72,13 +75,12 @@ namespace Service.EmailTrigger.Jobs
                 });
                 if (pd.PersonalData != null)
                 {
-                    var task = _emailSender.SendRegistrationConfirmAsync(new ()
+                    var task = _verificationCodes.SendEmailVerificationCodeAsync(new ()
                     {
+                        ClientId = message.TraderId,
                         Brand = pd.PersonalData.BrandId,
+                        DeviceType = "Unknown",
                         Lang = "En",
-                        Platform = pd.PersonalData.PlatformType,
-                        Email = pd.PersonalData.Email,
-                        TraderId = message.TraderId,
                     }).AsTask();
                     taskList.Add(task);
                 }

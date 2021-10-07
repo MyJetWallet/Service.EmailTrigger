@@ -25,5 +25,9 @@ namespace Service.EmailTrigger.Settings
         
         [YamlProperty("EmailTrigger.SpotServiceBusHostPort")]
         public string SpotServiceBusHostPort { get; set; }
+        
+        [YamlProperty("EmailTrigger.VerificationCodesGrpcUrl")]
+        public string VerificationCodesGrpcUrl { get; set; }
+        
     }
 }
