@@ -19,7 +19,7 @@
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="1.6.10" />
     <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="1.0.4" />
     <PackageReference Include="MyJetWallet.Service.EmailSender.Client" Version="1.0.1" />
-    <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.0.1" />
+    <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.0.2" />
     <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.0.2" />
     <PackageReference Include="MyJetWallet.Service.VerificationCodes.Client" Version="1.2.14" />
     <PackageReference Include="MyServiceBus.TcpClient" Version="2.4.4" />
