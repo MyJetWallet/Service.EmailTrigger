@@ -58,6 +58,7 @@ namespace Service.EmailTrigger.Jobs
                         LoginTime = auditEvent.Session.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
                     }).AsTask();
                     taskList.Add(task);
+                    _logger.LogInformation("Sending LoginEmail to userId {userId}", auditEvent.Session.TraderId);
                 }
             }
             await Task.WhenAll(taskList);
@@ -83,6 +84,8 @@ namespace Service.EmailTrigger.Jobs
                         Lang = "En",
                     }).AsTask();
                     taskList.Add(task);
+                    _logger.LogInformation("Sending EmailVerificationCode to userId {userId}", message.TraderId);
+
                 }
             }
             await Task.WhenAll(taskList);
@@ -111,6 +114,7 @@ namespace Service.EmailTrigger.Jobs
                         UserAgent = message.UserAgent
                     }).AsTask();
                     taskList.Add(task);
+                    _logger.LogInformation("Sending AlreadyRegisteredEmail to userId {userId}", message.TraderId);
                 }
             }
             await Task.WhenAll(taskList);
