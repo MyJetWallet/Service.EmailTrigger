@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>0c603974-17fb-4950-8dce-d5d3c3d629e8</UserSecretsId>
     <LangVersion>9</LangVersion>
   </PropertyGroup>
@@ -12,16 +12,16 @@
     <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="MyJetWallet.Sdk.Authorization" Version="2.0.11" />
-    <PackageReference Include="MyJetWallet.Sdk.Grpc" Version="1.0.5" />
-    <PackageReference Include="MyJetWallet.Sdk.GrpcMetrics" Version="2.0.3" />
+    <PackageReference Include="MyJetWallet.Sdk.Authorization" Version="2.1.0" />
+    <PackageReference Include="MyJetWallet.Sdk.Grpc" Version="2.0.0" />
+    <PackageReference Include="MyJetWallet.Sdk.GrpcMetrics" Version="2.0.4" />
     <PackageReference Include="MyJetWallet.Sdk.GrpcSchema" Version="1.0.6" />
-    <PackageReference Include="MyJetWallet.Sdk.NoSql" Version="1.4.0" />
-    <PackageReference Include="MyJetWallet.Sdk.Service" Version="1.6.11" />
-    <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.0.0" />
-    <PackageReference Include="MyJetWallet.Service.EmailSender.Client" Version="1.0.2" />
-    <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.0.3" />
-    <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.1.0" />
+    <PackageReference Include="MyJetWallet.Sdk.NoSql" Version="2.0.1" />
+    <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.0.2" />
+    <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.0.2" />
+    <PackageReference Include="MyJetWallet.Service.EmailSender.Client" Version="1.1.0" />
+    <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.1.0" />
+    <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.2.0" />
     <PackageReference Include="MyJetWallet.Service.VerificationCodes.Client" Version="1.2.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.1" />
