@@ -24,7 +24,7 @@
     <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.2.0" />
     <PackageReference Include="MyJetWallet.Service.VerificationCodes.Client" Version="1.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.1" />
+    <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.2" />
     <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.0.152" />
     <PackageReference Include="SimpleTrading.BaseMetrics" Version="1.0.3" />
     <PackageReference Include="SimpleTrading.PersonalData.Abstractions" Version="1.0.11" />
