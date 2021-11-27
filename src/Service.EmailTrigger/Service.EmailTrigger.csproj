@@ -18,7 +18,7 @@
     <PackageReference Include="MyJetWallet.Sdk.GrpcSchema" Version="1.0.6" />
     <PackageReference Include="MyJetWallet.Sdk.NoSql" Version="2.0.2" />
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.1.5" />
-    <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.0.2" />
+    <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.1.0" />
     <PackageReference Include="MyJetWallet.Service.EmailSender.Client" Version="1.1.0" />
     <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.1.0" />
     <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.2.0" />
@@ -27,7 +27,7 @@
     <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.2" />
     <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.0.152" />
     <PackageReference Include="SimpleTrading.BaseMetrics" Version="1.0.3" />
-    <PackageReference Include="SimpleTrading.PersonalData.Abstractions" Version="1.0.15" />
+    <PackageReference Include="SimpleTrading.PersonalData.Abstractions" Version="1.0.16" />
     <PackageReference Include="SimpleTrading.ServiceStatusReporterConnector" Version="1.0.9" />
   </ItemGroup>
 
