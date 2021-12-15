@@ -3,6 +3,9 @@ using MyJetWallet.Sdk.Authorization.ServiceBus;
 using MyJetWallet.Sdk.Service;
 using MyJetWallet.Sdk.ServiceBus;
 using MyServiceBus.Abstractions;
+using Service.Bitgo.DepositDetector.Domain.Models;
+using Service.Bitgo.WithdrawalProcessor.Client;
+using Service.Bitgo.WithdrawalProcessor.Domain.Models;
 using Service.EmailSender.Client;
 using Service.EmailTrigger.Jobs;
 using Service.PersonalData.Client;
@@ -19,6 +22,8 @@ namespace Service.EmailTrigger.Modules
             var spotServiceBusClient = builder.RegisterMyServiceBusTcpClient(Program.ReloadedSettings(e => e.SpotServiceBusHostPort), Program.LogFactory);
             builder.RegisterClientRegisteredSubscriber(spotServiceBusClient, queueName);
             builder.RegisterClientRegisterFailAlreadyExistsSubscriber(spotServiceBusClient, queueName);
+            builder.RegisterMyServiceBusSubscriberBatch<Withdrawal>(spotServiceBusClient, Withdrawal.TopicName, queueName, TopicQueueType.PermanentWithSingleConnection);
+            builder.RegisterMyServiceBusSubscriberBatch<Deposit>(spotServiceBusClient, Deposit.TopicName, queueName, TopicQueueType.PermanentWithSingleConnection);
 
             var authServiceBus =
                 builder.RegisterMyServiceBusTcpClient(Program.ReloadedSettings(e => e.AuthServiceBusHostPort), Program.LogFactory);

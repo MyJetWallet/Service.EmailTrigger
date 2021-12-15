@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Authorization.ServiceBus;
+using Service.Bitgo.DepositDetector.Domain.Models;
+using Service.Bitgo.WithdrawalProcessor.Domain.Models;
 using Service.EmailSender.Grpc;
 using Service.PersonalData.Grpc;
 using Service.PersonalData.Grpc.Contracts;
@@ -23,6 +25,8 @@ namespace Service.EmailTrigger.Jobs
             ISubscriber<IReadOnlyList<SessionAuditEvent>> sessionAudit, 
             ISubscriber<IReadOnlyList<ClientRegisterMessage>> registerSubscriber, 
             ISubscriber<IReadOnlyList<ClientRegisterFailAlreadyExistsMessage>> failSubscriber,
+            ISubscriber<IReadOnlyList<Deposit>> depositSubscriber,
+            ISubscriber<IReadOnlyList<Withdrawal>> withdrawalSubscriber,
             IEmailSenderService emailSender, 
             IPersonalDataServiceGrpc personalDataService, IEmailVerificationCodes verificationCodes)
         {
@@ -34,6 +38,8 @@ namespace Service.EmailTrigger.Jobs
             sessionAudit.Subscribe(HandleEvent);
             registerSubscriber.Subscribe(HandleEvent);
             failSubscriber.Subscribe(HandleEvent);
+            depositSubscriber.Subscribe(HandleEvent);
+            withdrawalSubscriber.Subscribe(HandleEvent);
         }
 
         private async ValueTask HandleEvent(IReadOnlyList<SessionAuditEvent> events)
@@ -115,6 +121,63 @@ namespace Service.EmailTrigger.Jobs
                     }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending AlreadyRegisteredEmail to userId {userId}", message.TraderId);
+                }
+            }
+            await Task.WhenAll(taskList);
+        }
+        
+        private async ValueTask HandleEvent(IReadOnlyList<Withdrawal> messages)
+        {
+            var taskList = new List<Task>();
+            
+            foreach (var message in messages.Where(t=>t.Status == WithdrawalStatus.Success))
+            {
+                var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                {
+                    Id = message.ClientId
+                });
+                if (pd.PersonalData != null)
+                {
+                    var task = _emailSender.SendWithdrawalSuccessfulEmailAsync(new ()
+                    {
+                        Brand = pd.PersonalData.BrandId,
+                        Lang = "En",
+                        Platform = pd.PersonalData.PlatformType,
+                        Email = pd.PersonalData.Email,
+                        AssetSymbol = message.AssetSymbol,
+                        Amount = message.Amount.ToString(),
+                        FullName = pd.PersonalData.FirstName,
+                    }).AsTask();
+                    taskList.Add(task);
+                    _logger.LogInformation("Sending WithdrawalSuccessfulEmail to userId {userId}", message.ClientId);
+                }
+            }
+            await Task.WhenAll(taskList);
+        }
+        
+        private async ValueTask HandleEvent(IReadOnlyList<Deposit> messages)
+        {
+            var taskList = new List<Task>();
+            
+            foreach (var message in messages.Where(t=>t.Status == DepositStatus.Processed))
+            {
+                var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                {
+                    Id = message.ClientId
+                });
+                if (pd.PersonalData != null)
+                {
+                    var task = _emailSender.SendDepositSuccessfulEmailAsync(new ()
+                    {
+                        Brand = pd.PersonalData.BrandId,
+                        Lang = "En",
+                        Platform = pd.PersonalData.PlatformType,
+                        Email = pd.PersonalData.Email,
+                        AssetSymbol = message.AssetSymbol,
+                        Amount = message.Amount.ToString(),
+                    }).AsTask();
+                    taskList.Add(task);
+                    _logger.LogInformation("Sending DepositSuccessfulEmail to userId {userId}", message.ClientId);
                 }
             }
             await Task.WhenAll(taskList);
