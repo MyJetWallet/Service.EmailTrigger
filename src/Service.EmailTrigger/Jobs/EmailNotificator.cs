@@ -7,6 +7,7 @@ using MyJetWallet.Sdk.Authorization.ServiceBus;
 using Service.Bitgo.DepositDetector.Domain.Models;
 using Service.Bitgo.WithdrawalProcessor.Domain.Models;
 using Service.EmailSender.Grpc;
+using Service.InternalTransfer.Domain.Models;
 using Service.PersonalData.Grpc;
 using Service.PersonalData.Grpc.Contracts;
 using Service.Registration.Domain.Models;
@@ -27,6 +28,7 @@ namespace Service.EmailTrigger.Jobs
             ISubscriber<IReadOnlyList<ClientRegisterFailAlreadyExistsMessage>> failSubscriber,
             ISubscriber<IReadOnlyList<Deposit>> depositSubscriber,
             ISubscriber<IReadOnlyList<Withdrawal>> withdrawalSubscriber,
+            ISubscriber<IReadOnlyList<Transfer>> transferSubscriber,
             IEmailSenderService emailSender, 
             IPersonalDataServiceGrpc personalDataService, IEmailVerificationCodes verificationCodes)
         {
@@ -40,6 +42,7 @@ namespace Service.EmailTrigger.Jobs
             failSubscriber.Subscribe(HandleEvent);
             depositSubscriber.Subscribe(HandleEvent);
             withdrawalSubscriber.Subscribe(HandleEvent);
+            transferSubscriber.Subscribe(HandleEvent);
         }
 
         private async ValueTask HandleEvent(IReadOnlyList<SessionAuditEvent> events)
@@ -132,24 +135,46 @@ namespace Service.EmailTrigger.Jobs
             
             foreach (var message in messages.Where(t=>t.Status == WithdrawalStatus.Success))
             {
-                var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                var pdSender = await _personalDataService.GetByIdAsync(new GetByIdRequest()
                 {
                     Id = message.ClientId
                 });
-                if (pd.PersonalData != null)
+                if (pdSender.PersonalData != null)
                 {
                     var task = _emailSender.SendWithdrawalSuccessfulEmailAsync(new ()
                     {
-                        Brand = pd.PersonalData.BrandId,
+                        Brand = pdSender.PersonalData.BrandId,
                         Lang = "En",
-                        Platform = pd.PersonalData.PlatformType,
-                        Email = pd.PersonalData.Email,
+                        Platform = pdSender.PersonalData.PlatformType,
+                        Email = pdSender.PersonalData.Email,
                         AssetSymbol = message.AssetSymbol,
                         Amount = message.Amount.ToString(),
-                        FullName = pd.PersonalData.FirstName,
+                        FullName = pdSender.PersonalData.FirstName,
                     }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending WithdrawalSuccessfulEmail to userId {userId}", message.ClientId);
+                }
+                
+                if(!message.IsInternal)
+                    continue;
+                
+                var pdReceiver = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                {
+                    Id = message.DestinationClientId
+                });
+                if (pdReceiver.PersonalData != null)
+                {
+                    var task = _emailSender.SendDepositSuccessfulEmailAsync(new ()
+                    {
+                        Brand = pdReceiver.PersonalData.BrandId,
+                        Lang = "En",
+                        Platform = pdReceiver.PersonalData.PlatformType,
+                        Email = pdReceiver.PersonalData.Email,
+                        AssetSymbol = message.AssetSymbol,
+                        Amount = message.Amount.ToString(),
+                    }).AsTask();
+                    taskList.Add(task);
+                    _logger.LogInformation("Sending DepositSuccessfulEmail to userId {userId}", message.ClientId);
                 }
             }
             await Task.WhenAll(taskList);
@@ -182,5 +207,54 @@ namespace Service.EmailTrigger.Jobs
             }
             await Task.WhenAll(taskList);
         }
+        
+        private async ValueTask HandleEvent(IReadOnlyList<Transfer> messages)
+        {
+            var taskList = new List<Task>();
+            
+            foreach (var message in messages.Where(t=>t.Status == TransferStatus.Completed))
+            {
+                var pdSender = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                {
+                    Id = message.ClientId
+                });
+                if (pdSender.PersonalData != null)
+                {
+                    var task = _emailSender.SendWithdrawalSuccessfulEmailAsync(new ()
+                    {
+                        Brand = pdSender.PersonalData.BrandId,
+                        Lang = "En",
+                        Platform = pdSender.PersonalData.PlatformType,
+                        Email = pdSender.PersonalData.Email,
+                        AssetSymbol = message.AssetSymbol,
+                        Amount = message.Amount.ToString(),
+                        FullName = pdSender.PersonalData.FirstName,
+                    }).AsTask();
+                    taskList.Add(task);
+                    _logger.LogInformation("Sending WithdrawalSuccessfulEmail to userId {userId}", message.ClientId);
+                }
+                
+                var pdReceiver = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                {
+                    Id = message.DestinationClientId
+                });
+                if (pdReceiver.PersonalData != null)
+                {
+                    var task = _emailSender.SendDepositSuccessfulEmailAsync(new ()
+                    {
+                        Brand = pdReceiver.PersonalData.BrandId,
+                        Lang = "En",
+                        Platform = pdReceiver.PersonalData.PlatformType,
+                        Email = pdReceiver.PersonalData.Email,
+                        AssetSymbol = message.AssetSymbol,
+                        Amount = message.Amount.ToString(),
+                    }).AsTask();
+                    taskList.Add(task);
+                    _logger.LogInformation("Sending DepositSuccessfulEmail to userId {userId}", message.ClientId);
+                }
+            }
+            await Task.WhenAll(taskList);
+        }
+        
     }
 }
