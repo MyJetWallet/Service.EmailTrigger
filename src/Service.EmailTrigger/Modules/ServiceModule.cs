@@ -8,6 +8,7 @@ using Service.Bitgo.WithdrawalProcessor.Client;
 using Service.Bitgo.WithdrawalProcessor.Domain.Models;
 using Service.EmailSender.Client;
 using Service.EmailTrigger.Jobs;
+using Service.InternalTransfer.Domain.Models;
 using Service.PersonalData.Client;
 using Service.Registration.Client;
 using Service.VerificationCodes.Client;
@@ -24,6 +25,7 @@ namespace Service.EmailTrigger.Modules
             builder.RegisterClientRegisterFailAlreadyExistsSubscriber(spotServiceBusClient, queueName);
             builder.RegisterMyServiceBusSubscriberBatch<Withdrawal>(spotServiceBusClient, Withdrawal.TopicName, queueName, TopicQueueType.PermanentWithSingleConnection);
             builder.RegisterMyServiceBusSubscriberBatch<Deposit>(spotServiceBusClient, Deposit.TopicName, queueName, TopicQueueType.PermanentWithSingleConnection);
+            builder.RegisterMyServiceBusSubscriberBatch<Transfer>(spotServiceBusClient, Transfer.TopicName, queueName, TopicQueueType.PermanentWithSingleConnection);
 
             var authServiceBus =
                 builder.RegisterMyServiceBusTcpClient(Program.ReloadedSettings(e => e.AuthServiceBusHostPort), Program.LogFactory);
