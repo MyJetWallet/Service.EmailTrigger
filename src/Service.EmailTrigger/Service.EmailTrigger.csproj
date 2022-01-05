@@ -30,7 +30,7 @@
     <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.2" />
     <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.0.152" />
     <PackageReference Include="SimpleTrading.BaseMetrics" Version="1.0.3" />
-    <PackageReference Include="SimpleTrading.PersonalData.Abstractions" Version="1.0.22" />
+    <PackageReference Include="SimpleTrading.PersonalData.Abstractions" Version="1.0.24" />
     <PackageReference Include="SimpleTrading.ServiceStatusReporterConnector" Version="1.0.9" />
   </ItemGroup>
 
