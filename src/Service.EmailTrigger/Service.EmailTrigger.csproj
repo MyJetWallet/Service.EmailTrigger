@@ -24,7 +24,7 @@
     <PackageReference Include="MyJetWallet.Service.EmailSender.Client" Version="1.1.2" />
     <PackageReference Include="MyJetWallet.Service.InternalTransfer.Client" Version="1.1.2" />
     <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.1.3" />
-    <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.2.0" />
+    <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.2.1" />
     <PackageReference Include="MyJetWallet.Service.VerificationCodes.Client" Version="1.3.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="5.0.2" />
