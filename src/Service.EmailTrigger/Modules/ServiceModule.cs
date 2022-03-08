@@ -9,6 +9,7 @@ using Service.Bitgo.WithdrawalProcessor.Domain.Models;
 using Service.EmailSender.Client;
 using Service.EmailTrigger.Jobs;
 using Service.InternalTransfer.Domain.Models;
+using Service.KYC.Domain.Models.Messages;
 using Service.PersonalData.Client;
 using Service.Registration.Client;
 using Service.VerificationCodes.Client;
@@ -26,6 +27,8 @@ namespace Service.EmailTrigger.Modules
             builder.RegisterMyServiceBusSubscriberBatch<Withdrawal>(spotServiceBusClient, Withdrawal.TopicName, queueName, TopicQueueType.PermanentWithSingleConnection);
             builder.RegisterMyServiceBusSubscriberBatch<Deposit>(spotServiceBusClient, Deposit.TopicName, queueName, TopicQueueType.PermanentWithSingleConnection);
             builder.RegisterMyServiceBusSubscriberBatch<Transfer>(spotServiceBusClient, Transfer.TopicName, queueName, TopicQueueType.PermanentWithSingleConnection);
+            builder.RegisterMyServiceBusSubscriberBatch<KycProfileUpdatedMessage>(spotServiceBusClient,
+                KycProfileUpdatedMessage.TopicName, queueName, TopicQueueType.Permanent);
 
             var authServiceBus =
                 builder.RegisterMyServiceBusTcpClient(Program.ReloadedSettings(e => e.AuthServiceBusHostPort), Program.LogFactory);

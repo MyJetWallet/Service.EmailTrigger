@@ -8,6 +8,8 @@ using Service.Bitgo.DepositDetector.Domain.Models;
 using Service.Bitgo.WithdrawalProcessor.Domain.Models;
 using Service.EmailSender.Grpc;
 using Service.InternalTransfer.Domain.Models;
+using Service.KYC.Domain.Models.Enum;
+using Service.KYC.Domain.Models.Messages;
 using Service.PersonalData.Grpc;
 using Service.PersonalData.Grpc.Contracts;
 using Service.Registration.Domain.Models;
@@ -30,7 +32,9 @@ namespace Service.EmailTrigger.Jobs
             ISubscriber<IReadOnlyList<Withdrawal>> withdrawalSubscriber,
             ISubscriber<IReadOnlyList<Transfer>> transferSubscriber,
             IEmailSenderService emailSender, 
-            IPersonalDataServiceGrpc personalDataService, IEmailVerificationCodes verificationCodes)
+            IPersonalDataServiceGrpc personalDataService, 
+            IEmailVerificationCodes verificationCodes,
+            ISubscriber<IReadOnlyList<KycProfileUpdatedMessage>> kycSubscriber)
         {
             _logger = logger;
             _emailSender = emailSender;
@@ -43,6 +47,79 @@ namespace Service.EmailTrigger.Jobs
             depositSubscriber.Subscribe(HandleEvent);
             withdrawalSubscriber.Subscribe(HandleEvent);
             transferSubscriber.Subscribe(HandleEvent);
+            kycSubscriber.Subscribe(HandleEvent);
+        }
+
+        private async ValueTask HandleEvent(IReadOnlyList<KycProfileUpdatedMessage> profileUpdates)
+        {
+            var taskList = new List<Task>();
+            foreach (var profileUpdate in profileUpdates)
+            {
+                if (string.IsNullOrWhiteSpace(profileUpdate.OldProfile.BlockingReason) &&
+                    !string.IsNullOrWhiteSpace(profileUpdate.NewProfile.BlockingReason))
+                {
+                    var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                    {
+                        Id = profileUpdate.ClientId
+                    });
+                    if (pd.PersonalData != null)
+                    {
+                        var task = _emailSender.SendKycBannedEmailAsync(new ()
+                        {
+                            Brand = pd.PersonalData.BrandId,
+                            Lang = "En",
+                            Platform = pd.PersonalData.PlatformType,
+                            Email = pd.PersonalData.Email,
+                        }).AsTask();
+                        taskList.Add(task);
+                        _logger.LogInformation("Sending KycBannedEmail to userId {userId}", profileUpdate.ClientId);
+                    }
+                }
+
+                if (profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycInProgress &&
+                    profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycRequired)
+                {
+                    var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                    {
+                        Id = profileUpdate.ClientId
+                    });
+                    if (pd.PersonalData != null)
+                    {
+                        var task = _emailSender.SendKycDocumentsDeclinedEmailAsync(new ()
+                        {
+                            Brand = pd.PersonalData.BrandId,
+                            Lang = "En",
+                            Platform = pd.PersonalData.PlatformType,
+                            Email = pd.PersonalData.Email,
+                        }).AsTask();
+                        taskList.Add(task);
+                        _logger.LogInformation("Sending KycDocumentsDeclinedEmail to userId {userId}", profileUpdate.ClientId);
+                    }
+                }
+
+                if (profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycInProgress &&
+                    profileUpdate.OldProfile.DepositStatus == KycOperationStatus.Allowed)
+                {
+                    var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                    {
+                        Id = profileUpdate.ClientId
+                    });
+                    if (pd.PersonalData != null)
+                    {
+                        var task = _emailSender.SendKycDocumentsApprovedEmailAsync(new ()
+                        {
+                            Brand = pd.PersonalData.BrandId,
+                            Lang = "En",
+                            Platform = pd.PersonalData.PlatformType,
+                            Email = pd.PersonalData.Email,
+                        }).AsTask();
+                        taskList.Add(task);
+                        _logger.LogInformation("Sending KycDocumentsApprovedEmail to userId {userId}", profileUpdate.ClientId);
+                    }
+                }
+            }
+            
+            await Task.WhenAll(taskList);
         }
 
         private async ValueTask HandleEvent(IReadOnlyList<SessionAuditEvent> events)
@@ -133,6 +210,28 @@ namespace Service.EmailTrigger.Jobs
         {
             var taskList = new List<Task>();
             
+            foreach (var message in messages.Where(t => t.Status == WithdrawalStatus.Cancelled))
+            {
+                var pdSender = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                {
+                    Id = message.ClientId
+                });
+                if (pdSender.PersonalData != null)
+                {
+                    var task = _emailSender.SendWithdrawalCancelledEmailAsync(new ()
+                    {
+                        Brand = pdSender.PersonalData.BrandId,
+                        Lang = "En",
+                        Platform = pdSender.PersonalData.PlatformType,
+                        Email = pdSender.PersonalData.Email,
+                        AssetSymbol = message.AssetSymbol,
+                        Amount = message.Amount.ToString(),
+                    }).AsTask();
+                    taskList.Add(task);
+                    _logger.LogInformation("Sending WithdrawalSuccessfulEmail to userId {userId}", message.ClientId);
+                }
+            }
+            
             foreach (var message in messages.Where(t=>t.Status == WithdrawalStatus.Success))
             {
                 var pdSender = await _personalDataService.GetByIdAsync(new GetByIdRequest()
@@ -211,7 +310,29 @@ namespace Service.EmailTrigger.Jobs
         private async ValueTask HandleEvent(IReadOnlyList<Transfer> messages)
         {
             var taskList = new List<Task>();
-            
+
+            foreach (var message in messages.Where(t => t.Status == TransferStatus.Cancelled))
+            {
+                var pdSender = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                {
+                    Id = message.ClientId
+                });
+                if (pdSender.PersonalData != null)
+                {
+                    var task = _emailSender.SendWithdrawalCancelledEmailAsync(new ()
+                    {
+                        Brand = pdSender.PersonalData.BrandId,
+                        Lang = "En",
+                        Platform = pdSender.PersonalData.PlatformType,
+                        Email = pdSender.PersonalData.Email,
+                        AssetSymbol = message.AssetSymbol,
+                        Amount = message.Amount.ToString(),
+                    }).AsTask();
+                    taskList.Add(task);
+                    _logger.LogInformation("Sending WithdrawalSuccessfulEmail to userId {userId}", message.ClientId);
+                }
+            }
+
             foreach (var message in messages.Where(t=>t.Status == TransferStatus.Completed))
             {
                 var pdSender = await _personalDataService.GetByIdAsync(new GetByIdRequest()
