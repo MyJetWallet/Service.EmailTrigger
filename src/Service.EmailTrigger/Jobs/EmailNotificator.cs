@@ -77,7 +77,7 @@ namespace Service.EmailTrigger.Jobs
                 }
 
                 if (profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycInProgress &&
-                    profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycRequired)
+                    profileUpdate.NewProfile.DepositStatus == KycOperationStatus.KycRequired)
                 {
                     var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
                     {
@@ -98,7 +98,7 @@ namespace Service.EmailTrigger.Jobs
                 }
 
                 if (profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycInProgress &&
-                    profileUpdate.OldProfile.DepositStatus == KycOperationStatus.Allowed)
+                    profileUpdate.NewProfile.DepositStatus == KycOperationStatus.Allowed)
                 {
                     var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
                     {
