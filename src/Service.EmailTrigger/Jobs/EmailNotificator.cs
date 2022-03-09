@@ -55,8 +55,9 @@ namespace Service.EmailTrigger.Jobs
             var taskList = new List<Task>();
             foreach (var profileUpdate in profileUpdates)
             {
-                if (string.IsNullOrWhiteSpace(profileUpdate.OldProfile.BlockingReason) &&
-                    !string.IsNullOrWhiteSpace(profileUpdate.NewProfile.BlockingReason))
+                if (profileUpdate.OldProfile.DepositStatus != KycOperationStatus.Blocked && profileUpdate.NewProfile.DepositStatus == KycOperationStatus.Blocked ||
+                    profileUpdate.OldProfile.WithdrawalStatus != KycOperationStatus.Blocked && profileUpdate.NewProfile.WithdrawalStatus == KycOperationStatus.Blocked ||
+                    profileUpdate.OldProfile.TradeStatus != KycOperationStatus.Blocked && profileUpdate.NewProfile.TradeStatus == KycOperationStatus.Blocked)
                 {
                     var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
                     {
@@ -76,8 +77,9 @@ namespace Service.EmailTrigger.Jobs
                     }
                 }
 
-                if (profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycInProgress &&
-                    profileUpdate.NewProfile.DepositStatus == KycOperationStatus.KycRequired)
+                if (profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycInProgress && profileUpdate.NewProfile.DepositStatus == KycOperationStatus.KycRequired ||
+                    profileUpdate.OldProfile.WithdrawalStatus == KycOperationStatus.KycInProgress && profileUpdate.NewProfile.WithdrawalStatus == KycOperationStatus.KycRequired ||
+                    profileUpdate.OldProfile.TradeStatus == KycOperationStatus.KycInProgress && profileUpdate.NewProfile.TradeStatus == KycOperationStatus.KycRequired)
                 {
                     var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
                     {
@@ -97,8 +99,9 @@ namespace Service.EmailTrigger.Jobs
                     }
                 }
 
-                if (profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycInProgress &&
-                    profileUpdate.NewProfile.DepositStatus == KycOperationStatus.Allowed)
+                if (profileUpdate.OldProfile.DepositStatus == KycOperationStatus.KycInProgress && profileUpdate.NewProfile.DepositStatus == KycOperationStatus.Allowed ||
+                    profileUpdate.OldProfile.WithdrawalStatus == KycOperationStatus.KycInProgress && profileUpdate.NewProfile.WithdrawalStatus == KycOperationStatus.Allowed ||
+                    profileUpdate.OldProfile.TradeStatus == KycOperationStatus.KycInProgress && profileUpdate.NewProfile.TradeStatus == KycOperationStatus.Allowed)
                 {
                     var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
                     {
