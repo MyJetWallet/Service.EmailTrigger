@@ -7,6 +7,7 @@ using MyJetWallet.Sdk.Authorization.ServiceBus;
 using Service.Bitgo.DepositDetector.Domain.Models;
 using Service.Bitgo.WithdrawalProcessor.Domain.Models;
 using Service.EmailSender.Grpc;
+using Service.EmailSender.Grpc.Models;
 using Service.InternalTransfer.Domain.Models;
 using Service.KYC.Domain.Models.Enum;
 using Service.KYC.Domain.Models.Messages;
@@ -128,16 +129,34 @@ namespace Service.EmailTrigger.Jobs
         private async ValueTask HandleEvent(IReadOnlyList<SessionAuditEvent> events)
         {
             var taskList = new List<Task>();
-            
-            foreach (var auditEvent in events.Where(e => e.Action == SessionAuditEvent.SessionAction.Login && !e.Session.Description.Contains("Registration")))
+
+            foreach (var auditEvent in events.Where(e =>
+                         e.Action == SessionAuditEvent.SessionAction.Login &&
+                         !e.Session.Description.Contains("Registration")))
             {
-                var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest()
+                var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest
                 {
                     Id = auditEvent.Session.TraderId
                 });
-                if (pd.PersonalData != null)
+                if (pd.PersonalData == null)
+                    continue;
+
+                if (pd.PersonalData.Confirm == null)
                 {
-                    var task = _emailSender.SendLoginEmailAsync(new ()
+                    var confirmTask = _emailSender.SendRegistrationConfirmAsync(
+                        new RegistrationConfirmGrpcRequestContract
+                        {
+                            Brand = auditEvent.Session.BrandId,
+                            Platform = pd.PersonalData.PlatformType,
+                            Lang = "En",
+                            Email = pd.PersonalData.Email,
+                            TraderId = pd.PersonalData.Id
+                        }).AsTask();
+                    taskList.Add(confirmTask);
+                }
+
+                var task =
+                    _emailSender.SendLoginEmailAsync(new LoginEmailGrpcRequestContract
                     {
                         Brand = auditEvent.Session.BrandId,
                         Lang = "En",
@@ -146,10 +165,10 @@ namespace Service.EmailTrigger.Jobs
                         Ip = auditEvent.Session.IP,
                         LoginTime = auditEvent.Session.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
                     }).AsTask();
-                    taskList.Add(task);
-                    _logger.LogInformation("Sending LoginEmail to userId {userId}", auditEvent.Session.TraderId);
-                }
+                taskList.Add(task);
+                _logger.LogInformation("Sending LoginEmail to userId {userId}", auditEvent.Session.TraderId);
             }
+
             await Task.WhenAll(taskList);
         }
         
