@@ -155,17 +155,20 @@ namespace Service.EmailTrigger.Jobs
                 if (pd.PersonalData == null)
                     continue;
 
-                var task = pd.PersonalData.Confirm == null
-                    ? _emailSender.SendRegistrationConfirmAsync(
-                        new RegistrationConfirmGrpcRequestContract
-                        {
-                            Brand = auditEvent.Session.BrandId,
-                            Platform = pd.PersonalData.PlatformType,
-                            Lang = "En",
-                            Email = pd.PersonalData.Email,
-                            TraderId = pd.PersonalData.Id
-                        }).AsTask()
-                    : _emailSender.SendLoginEmailAsync(new LoginEmailGrpcRequestContract
+                if (pd.PersonalData.Confirm == null)
+                {
+                    var task = _verificationCodes.SendEmailVerificationCodeAsync(new SendVerificationCodeRequest
+                    {
+                        ClientId = pd.PersonalData.Id,
+                        Lang = "En",
+                        Brand = auditEvent.Session.BrandId,
+                        DeviceType = "Unknown"
+                    });
+                    taskList.Add(task);
+                }
+                else
+                {
+                    var task = _emailSender.SendLoginEmailAsync(new LoginEmailGrpcRequestContract
                     {
                         Brand = auditEvent.Session.BrandId,
                         Lang = "En",
@@ -174,8 +177,8 @@ namespace Service.EmailTrigger.Jobs
                         Ip = auditEvent.Session.IP,
                         LoginTime = auditEvent.Session.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
                     }).AsTask();
-                
-                taskList.Add(task);
+                    taskList.Add(task);
+                }
                 _logger.LogInformation("Sending LoginEmail to userId {userId}", auditEvent.Session.TraderId);
             }
 
