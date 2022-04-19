@@ -28,7 +28,6 @@ namespace Service.EmailTrigger.Jobs
 
         public EmailNotificator(ILogger<EmailNotificator> logger,
             ISubscriber<IReadOnlyList<SessionAuditEvent>> sessionAudit,
-            ISubscriber<IReadOnlyList<ClientRegisterMessage>> registerSubscriber,
             ISubscriber<IReadOnlyList<ClientRegisterFailAlreadyExistsMessage>> failSubscriber,
             ISubscriber<IReadOnlyList<Deposit>> depositSubscriber,
             ISubscriber<IReadOnlyList<Withdrawal>> withdrawalSubscriber,
@@ -44,7 +43,6 @@ namespace Service.EmailTrigger.Jobs
             _verificationCodes = verificationCodes;
 
             sessionAudit.Subscribe(HandleEvent);
-            registerSubscriber.Subscribe(HandleEvent);
             failSubscriber.Subscribe(HandleEvent);
             depositSubscriber.Subscribe(HandleEvent);
             withdrawalSubscriber.Subscribe(HandleEvent);
@@ -144,17 +142,16 @@ namespace Service.EmailTrigger.Jobs
         {
             var taskList = new List<Task>();
 
-            foreach (var auditEvent in events.Where(e =>
-                         e.Action == SessionAuditEvent.SessionAction.Login &&
-                         !e.Session.Description.Contains("Registration")))
+            foreach (var auditEvent in events.Where(e => e.Action == SessionAuditEvent.SessionAction.Login))
             {
                 var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest
                 {
                     Id = auditEvent.Session.TraderId
                 });
+                
                 if (pd.PersonalData == null)
                     continue;
-
+                
                 if (pd.PersonalData.Confirm == null)
                 {
                     var task = _verificationCodes.SendEmailVerificationCodeAsync(new SendVerificationCodeRequest
@@ -179,34 +176,8 @@ namespace Service.EmailTrigger.Jobs
                     }).AsTask();
                     taskList.Add(task);
                 }
+                
                 _logger.LogInformation("Sending LoginEmail to userId {userId}", auditEvent.Session.TraderId);
-            }
-
-            await Task.WhenAll(taskList);
-        }
-
-        private async ValueTask HandleEvent(IReadOnlyList<ClientRegisterMessage> messages)
-        {
-            var taskList = new List<Task>();
-
-            foreach (var message in messages)
-            {
-                var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest
-                {
-                    Id = message.TraderId
-                });
-                if (pd.PersonalData != null)
-                {
-                    var task = _verificationCodes.SendEmailVerificationCodeAsync(new SendVerificationCodeRequest
-                    {
-                        ClientId = message.TraderId,
-                        Brand = pd.PersonalData.BrandId,
-                        DeviceType = "Unknown",
-                        Lang = "En"
-                    }).AsTask();
-                    taskList.Add(task);
-                    _logger.LogInformation("Sending EmailVerificationCode to userId {userId}", message.TraderId);
-                }
             }
 
             await Task.WhenAll(taskList);
