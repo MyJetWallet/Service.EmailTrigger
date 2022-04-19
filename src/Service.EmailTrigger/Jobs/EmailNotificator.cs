@@ -151,7 +151,7 @@ namespace Service.EmailTrigger.Jobs
                 
                 if (pd.PersonalData == null)
                     continue;
-                
+
                 if (pd.PersonalData.Confirm == null)
                 {
                     var task = _verificationCodes.SendEmailVerificationCodeAsync(new SendVerificationCodeRequest
