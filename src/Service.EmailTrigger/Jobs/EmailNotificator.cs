@@ -169,7 +169,7 @@ namespace Service.EmailTrigger.Jobs
                     {
                         Brand = auditEvent.Session.BrandId,
                         Lang = "En",
-                        Platform = pd.PersonalData.PlatformType,
+                        Platform = auditEvent.Session.PlatformType.ToString(),
                         Email = pd.PersonalData.Email,
                         Ip = auditEvent.Session.IP,
                         LoginTime = auditEvent.Session.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
