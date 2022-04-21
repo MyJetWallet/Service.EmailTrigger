@@ -152,13 +152,16 @@ namespace Service.EmailTrigger.Jobs
                 if (pd.PersonalData == null)
                     continue;
 
-                if (pd.PersonalData.Confirm == null)
+	            var platform = auditEvent.Session.PlatformType.ToString();
+
+	            if (pd.PersonalData.Confirm == null)
                 {
                     var task = _verificationCodes.SendEmailVerificationCodeAsync(new SendVerificationCodeRequest
                     {
                         ClientId = pd.PersonalData.Id,
                         Lang = "En",
                         Brand = auditEvent.Session.BrandId,
+                        PlatformType = platform,
                         DeviceType = "Unknown"
                     });
                     taskList.Add(task);
@@ -169,7 +172,7 @@ namespace Service.EmailTrigger.Jobs
                     {
                         Brand = auditEvent.Session.BrandId,
                         Lang = "En",
-                        Platform = auditEvent.Session.PlatformType.ToString(),
+                        Platform = platform,
                         Email = pd.PersonalData.Email,
                         Ip = auditEvent.Session.IP,
                         LoginTime = auditEvent.Session.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
@@ -200,11 +203,11 @@ namespace Service.EmailTrigger.Jobs
                         {
                             Brand = pd.PersonalData.BrandId,
                             Lang = "En",
-                            Platform = pd.PersonalData.PlatformType,
+                            Platform = message.PlatformType,
                             Email = pd.PersonalData.Email,
                             TraderId = message.TraderId,
                             Ip = message.IpAddress,
-                            UserAgent = message.UserAgent
+                            UserAgent = message.UserAgent,
                         }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending AlreadyRegisteredEmail to userId {userId}", message.TraderId);
