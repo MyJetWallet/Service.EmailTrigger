@@ -383,8 +383,19 @@ namespace Service.EmailTrigger.Jobs
                 });
                 if (pdSender.PersonalData != null)
                 {
-                    var task = _emailSender.SendWithdrawalSuccessfulEmailAsync(
-                        new WithdrawalSuccessfulGrpcRequestContract
+                    var task = message.IsInternal
+                        ? _emailSender.SendTransferSuccessfulEmailAsync(new() 
+                        {
+                            Brand = pdSender.PersonalData.BrandId,
+                            Lang = "En",
+                            Platform = pdSender.PersonalData.PlatformType,
+                            Email = pdSender.PersonalData.Email,
+                            AssetSymbol = message.AssetSymbol,
+                            Amount = message.Amount.ToString(),
+                            FullName = pdSender.PersonalData.FirstName
+                        }) .AsTask()
+                        : _emailSender.SendWithdrawalSuccessfulEmailAsync(
+                        new ()
                         {
                             Brand = pdSender.PersonalData.BrandId,
                             Lang = "En",
