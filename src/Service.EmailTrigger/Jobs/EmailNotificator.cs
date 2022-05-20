@@ -294,7 +294,9 @@ namespace Service.EmailTrigger.Jobs
                         Platform = platform,
                         Email = pd.PersonalData.Email,
                         Ip = auditEvent.Session.IP,
-                        LoginTime = auditEvent.Session.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")
+                        LoginTime = auditEvent.Session.CreateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Location = auditEvent.Session.Location,
+
                     }).AsTask();
                     taskList.Add(task);
                 }
@@ -357,7 +359,7 @@ namespace Service.EmailTrigger.Jobs
                                 Platform = pdSender.PersonalData.PlatformType,
                                 Email = pdSender.PersonalData.Email,
                                 AssetSymbol = message.AssetSymbol,
-                                Amount = message.Amount.ToString()
+                                Amount = message.Amount.ToString(),
                             }).AsTask()
                         : _emailSender.SendWithdrawalCancelledEmailAsync(
                             new()
@@ -384,7 +386,7 @@ namespace Service.EmailTrigger.Jobs
                 if (pdSender.PersonalData != null)
                 {
                     var task = message.IsInternal
-                        ? _emailSender.SendTransferSuccessfulEmailAsync(new() 
+                        ? _emailSender.SendTransferSuccessfulEmailAsync(new()
                         {
                             Brand = pdSender.PersonalData.BrandId,
                             Lang = "En",
@@ -392,7 +394,10 @@ namespace Service.EmailTrigger.Jobs
                             Email = pdSender.PersonalData.Email,
                             AssetSymbol = message.AssetSymbol,
                             Amount = message.Amount.ToString(),
-                            FullName = pdSender.PersonalData.FirstName
+                            FullName = pdSender.PersonalData.FirstName,
+                            OperationId = message.Id.ToString(),
+                            Timestamp = message.EventDate.ToString("f"),
+
                         }) .AsTask()
                         : _emailSender.SendWithdrawalSuccessfulEmailAsync(
                         new ()
@@ -403,7 +408,10 @@ namespace Service.EmailTrigger.Jobs
                             Email = pdSender.PersonalData.Email,
                             AssetSymbol = message.AssetSymbol,
                             Amount = message.Amount.ToString(),
-                            FullName = pdSender.PersonalData.FirstName
+                            FullName = pdSender.PersonalData.FirstName,
+                            OperationId = message.Id.ToString(),
+                            Timestamp = message.EventDate.ToString("f"),
+
                         }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending WithdrawalSuccessfulEmail to userId {userId}", message.ClientId);
@@ -425,7 +433,9 @@ namespace Service.EmailTrigger.Jobs
                         Platform = pdReceiver.PersonalData.PlatformType,
                         Email = pdReceiver.PersonalData.Email,
                         AssetSymbol = message.AssetSymbol,
-                        Amount = message.Amount.ToString()
+                        Amount = message.Amount.ToString(),
+                        OperationId = message.Id.ToString(),
+                        Timestamp = message.EventDate.ToString("f"),
                     }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending TransferReceivedEmail to userId {userId}", message.ClientId);
@@ -447,14 +457,14 @@ namespace Service.EmailTrigger.Jobs
                 });
                 if (pd.PersonalData != null)
                 {
-                    var task = _emailSender.SendDepositSuccessfulEmailAsync(new DepositSuccessfulGrpcRequestContract
+                    var task = _emailSender.SendDepositSuccessfulEmailAsync(new()
                     {
                         Brand = pd.PersonalData.BrandId,
                         Lang = "En",
                         Platform = pd.PersonalData.PlatformType,
                         Email = pd.PersonalData.Email,
                         AssetSymbol = message.AssetSymbol,
-                        Amount = message.Amount.ToString()
+                        Amount = message.Amount.ToString(),
                     }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending DepositSuccessfulEmail to userId {userId}", message.ClientId);
@@ -507,7 +517,9 @@ namespace Service.EmailTrigger.Jobs
                             Email = pdSender.PersonalData.Email,
                             AssetSymbol = message.AssetSymbol,
                             Amount = message.Amount.ToString(),
-                            FullName = pdSender.PersonalData.FirstName
+                            FullName = pdSender.PersonalData.FirstName,
+                            OperationId = message.Id.ToString(),
+                            Timestamp = message.EventDate.ToString("f"),
                         }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending TransferSuccessfulEmail to userId {userId}", message.ClientId);
@@ -526,7 +538,9 @@ namespace Service.EmailTrigger.Jobs
                         Platform = pdReceiver.PersonalData.PlatformType,
                         Email = pdReceiver.PersonalData.Email,
                         AssetSymbol = message.AssetSymbol,
-                        Amount = message.Amount.ToString()
+                        Amount = message.Amount.ToString(),
+                        OperationId = message.Id.ToString(),
+                        Timestamp = message.EventDate.ToString("f"),
                     }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending TransferReceivedEmail to userId {userId}", message.ClientId);
