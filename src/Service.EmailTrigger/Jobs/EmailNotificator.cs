@@ -137,6 +137,25 @@ namespace Service.EmailTrigger.Jobs
                         _logger.LogInformation("Sending SignInFailed2Fa24HEmail to userId {userId}", blocker.ClientId);
                     }
                 }
+                if (blocker.BlockerType is BlockerType.PhoneNumberUpdate)
+                {
+                    var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest
+                    {
+                        Id = blocker.ClientId
+                    });
+                    if (pd.PersonalData != null)
+                    {
+                        var task = _emailSender.SendSuspiciousActivityEmailAsync(new ()
+                        {
+                            Brand = pd.PersonalData.BrandId,
+                            Lang = "En",
+                            Platform = pd.PersonalData.PlatformType,
+                            Email = pd.PersonalData.Email
+                        }).AsTask();
+                        taskList.Add(task);
+                        _logger.LogInformation("Sending SuspiciousActivityEmail to userId {userId}", blocker.ClientId);
+                    }
+                }
             }
             await Task.WhenAll(taskList);
         }

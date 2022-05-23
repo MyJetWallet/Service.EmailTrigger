@@ -22,7 +22,7 @@
     <PackageReference Include="MyJetWallet.Service.Bitgo.DepositDetector.Client" Version="2.2.5" />
     <PackageReference Include="MyJetWallet.Service.Bitgo.WithdrawalProcessor.Client" Version="2.11.1" />
     <PackageReference Include="MyJetWallet.Service.ClientBlocker.Client" Version="1.1.0" />
-    <PackageReference Include="MyJetWallet.Service.EmailSender.Client" Version="1.1.7" />
+    <PackageReference Include="MyJetWallet.Service.EmailSender.Client" Version="1.1.8" />
     <PackageReference Include="MyJetWallet.Service.InternalTransfer.Client" Version="1.1.4" />
     <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.1.9" />
     <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.2.2" />
