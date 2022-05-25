@@ -315,7 +315,7 @@ namespace Service.EmailTrigger.Jobs
                         Ip = auditEvent.Session.IP,
                         LoginTime = auditEvent.Session.CreateTime.ToString("yyyy-MM-dd HH:mm:ss"),
                         Location = auditEvent.Session.Location,
-
+                        PhoneModel = auditEvent.Session.PhoneModel
                     }).AsTask();
                     taskList.Add(task);
                 }
@@ -416,7 +416,6 @@ namespace Service.EmailTrigger.Jobs
                             FullName = pdSender.PersonalData.FirstName,
                             OperationId = message.Id.ToString(),
                             Timestamp = message.EventDate.ToString("f"),
-
                         }) .AsTask()
                         : _emailSender.SendWithdrawalSuccessfulEmailAsync(
                         new ()
