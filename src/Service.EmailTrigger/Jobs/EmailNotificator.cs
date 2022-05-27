@@ -379,6 +379,8 @@ namespace Service.EmailTrigger.Jobs
                                 Email = pdSender.PersonalData.Email,
                                 AssetSymbol = message.AssetSymbol,
                                 Amount = message.Amount.ToString(),
+                                OperationId = message.Id.ToString(),
+                                Timestamp = message.EventDate.ToString("f"),
                             }).AsTask()
                         : _emailSender.SendWithdrawalCancelledEmailAsync(
                             new()
@@ -388,7 +390,9 @@ namespace Service.EmailTrigger.Jobs
                                 Platform = pdSender.PersonalData.PlatformType,
                                 Email = pdSender.PersonalData.Email,
                                 AssetSymbol = message.AssetSymbol,
-                                Amount = message.Amount.ToString()
+                                Amount = message.Amount.ToString(),
+                                OperationId = message.Id.ToString(),
+                                Timestamp = message.EventDate.ToString("f"),
                             }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending WithdrawalSuccessfulEmail to userId {userId}",
@@ -511,7 +515,9 @@ namespace Service.EmailTrigger.Jobs
                         Platform = pdSender.PersonalData.PlatformType,
                         Email = pdSender.PersonalData.Email,
                         AssetSymbol = message.AssetSymbol,
-                        Amount = message.Amount.ToString()
+                        Amount = message.Amount.ToString(),
+                        OperationId = message.Id.ToString(),
+                        Timestamp = message.EventDate.ToString("f"),
                     }).AsTask();
                     taskList.Add(task);
                     _logger.LogInformation("Sending TransferSuccessfulEmail to userId {userId}", message.ClientId);
