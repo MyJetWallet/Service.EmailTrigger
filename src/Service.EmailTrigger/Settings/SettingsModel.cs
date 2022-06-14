@@ -29,5 +29,7 @@ namespace Service.EmailTrigger.Settings
         [YamlProperty("EmailTrigger.VerificationCodesGrpcUrl")]
         public string VerificationCodesGrpcUrl { get; set; }
         
+        [YamlProperty("EmailTrigger.MessageTemplatesGrpcServiceUrl")]
+        public string MessageTemplatesGrpcServiceUrl { get; set; }
     }
 }

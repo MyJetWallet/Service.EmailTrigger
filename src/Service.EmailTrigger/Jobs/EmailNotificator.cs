@@ -10,11 +10,14 @@ using Service.ClientBlocker.Domain.Models;
 using Service.ClientProfile.Domain.Models;
 using Service.EmailSender.Grpc;
 using Service.EmailSender.Grpc.Models;
+using Service.HighYieldEngine.Domain.Models;
 using Service.InternalTransfer.Domain.Models;
 using Service.KYC.Domain.Models.Enum;
 using Service.KYC.Domain.Models.Messages;
+using Service.MessageTemplates.Client;
 using Service.PersonalData.Grpc;
 using Service.PersonalData.Grpc.Contracts;
+using Service.PersonalData.Grpc.Models;
 using Service.Registration.Domain.Models;
 using Service.VerificationCodes.Grpc;
 using Service.VerificationCodes.Grpc.Models;
@@ -27,6 +30,7 @@ namespace Service.EmailTrigger.Jobs
         private readonly ILogger<EmailNotificator> _logger;
         private readonly IPersonalDataServiceGrpc _personalDataService;
         private readonly IEmailVerificationCodes _verificationCodes;
+        private readonly ITemplateClient _templateClient;
 
         public EmailNotificator(ILogger<EmailNotificator> logger,
             ISubscriber<IReadOnlyList<SessionAuditEvent>> sessionAudit,
@@ -35,18 +39,21 @@ namespace Service.EmailTrigger.Jobs
             ISubscriber<IReadOnlyList<Withdrawal>> withdrawalSubscriber,
             ISubscriber<IReadOnlyList<Transfer>> transferSubscriber,
             ISubscriber<IReadOnlyList<ClientProfileUpdateMessage>> clientProfileSubscriber,
+            ISubscriber<IReadOnlyList<ClientOfferTerminate>> highYieldTerminateClientOffer,
             IEmailSenderService emailSender,
             IPersonalDataServiceGrpc personalDataService,
             IEmailVerificationCodes verificationCodes,
             ISubscriber<IReadOnlyList<KycProfileUpdatedMessage>> kycSubscriber,
-            ISubscriber<IReadOnlyList<ClientBlockerMessage>> clientSubscriber)
+            ISubscriber<IReadOnlyList<ClientBlockerMessage>> clientSubscriber, 
+			ITemplateClient templateClient)
         {
             _logger = logger;
             _emailSender = emailSender;
             _personalDataService = personalDataService;
             _verificationCodes = verificationCodes;
+	        _templateClient = templateClient;
 
-            sessionAudit.Subscribe(HandleEvent);
+	        sessionAudit.Subscribe(HandleEvent);
             failSubscriber.Subscribe(HandleEvent);
             depositSubscriber.Subscribe(HandleEvent);
             withdrawalSubscriber.Subscribe(HandleEvent);
@@ -54,6 +61,7 @@ namespace Service.EmailTrigger.Jobs
             kycSubscriber.Subscribe(HandleEvent);
             clientProfileSubscriber.Subscribe(HandleEvent);
             clientSubscriber.Subscribe(HandleEvent);
+            highYieldTerminateClientOffer.Subscribe(HandleEvent);
         }
 
         private async ValueTask HandleEvent(IReadOnlyList<ClientBlockerMessage> blockers)
@@ -573,5 +581,42 @@ namespace Service.EmailTrigger.Jobs
 
             await Task.WhenAll(taskList);
         }
+
+	    private async ValueTask HandleEvent(IReadOnlyList<ClientOfferTerminate> messages)
+	    {
+		    var taskList = new List<Task>();
+
+		    foreach (var message in messages)
+		    {
+			    PersonalDataGrpcResponseContract personalDataResponse = await _personalDataService.GetByIdAsync(new GetByIdRequest
+			    {
+				    Id = message.ClientId
+			    });
+
+			    PersonalDataGrpcModel personalData = personalDataResponse.PersonalData;
+			    if (personalData == null) 
+					continue;
+
+                string title = await _templateClient.GetTemplateBody(message.OfferNameTemplateId, personalData.BrandId, "En");
+
+			    var task = _emailSender.SendClientOfferTerminateEmailAsync(new()
+			    {
+				    Brand = personalData.BrandId,
+				    Lang = "En",
+				    Platform = personalData.PlatformType,
+				    Email = personalData.Email,
+				    AssetSymbol = message.AssetSymbol,
+				    Amount = message.Amount.ToString(),
+				    SubscriptionName = title,
+				    InterestEarn = message.InterestEarn
+			    }).AsTask();
+
+			    taskList.Add(task);
+
+			    _logger.LogInformation("Sending ClientOfferTerminate to userId {userId}", message.ClientId);
+		    }
+
+		    await Task.WhenAll(taskList);
+	    }
     }
 }
