@@ -31,5 +31,8 @@ namespace Service.EmailTrigger.Settings
         
         [YamlProperty("EmailTrigger.MessageTemplatesGrpcServiceUrl")]
         public string MessageTemplatesGrpcServiceUrl { get; set; }
+        
+        [YamlProperty("EmailTrigger.MyNoSqlReaderHostPort")]
+        public string MyNoSqlReaderHostPort { get; set; }
     }
 }

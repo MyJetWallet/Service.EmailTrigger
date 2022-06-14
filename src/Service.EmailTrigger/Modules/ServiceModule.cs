@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using MyJetWallet.Sdk.Authorization.ServiceBus;
+using MyJetWallet.Sdk.NoSql;
 using MyJetWallet.Sdk.ServiceBus;
+using MyNoSqlServer.DataReader;
 using MyServiceBus.Abstractions;
 using Service.Bitgo.DepositDetector.Domain.Models;
 using Service.Bitgo.WithdrawalProcessor.Domain.Models;
@@ -40,7 +42,9 @@ namespace Service.EmailTrigger.Modules
             builder.RegisterEmailSenderClient(Program.Settings.EmailSenderGrpcServiceUrl);
             builder.RegisterPersonalDataClient(Program.Settings.PersonalDataServiceUrl);
             builder.RegisterVerificationCodesClient(Program.Settings.VerificationCodesGrpcUrl);
-            builder.RegisterMessageTemplatesClient(Program.Settings.MessageTemplatesGrpcServiceUrl);
+
+            IMyNoSqlSubscriber myNosqlClient = builder.CreateNoSqlClient(Program.Settings.MyNoSqlReaderHostPort, Program.LogFactory);
+            builder.RegisterMessageTemplatesCachedClient(Program.Settings.MessageTemplatesGrpcServiceUrl, myNosqlClient);
 
             builder
                 .RegisterType<EmailNotificator>()
