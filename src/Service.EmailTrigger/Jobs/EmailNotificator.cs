@@ -588,6 +588,9 @@ namespace Service.EmailTrigger.Jobs
 
 		    foreach (var message in messages)
 		    {
+                if (message.Amount <= 0)
+                    continue;
+                
 			    PersonalDataGrpcResponseContract personalDataResponse = await _personalDataService.GetByIdAsync(new GetByIdRequest
 			    {
 				    Id = message.ClientId
