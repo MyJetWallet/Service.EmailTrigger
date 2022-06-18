@@ -19,9 +19,9 @@
     <PackageReference Include="MyJetWallet.Sdk.NoSql" Version="2.2.7" />
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.2.4" />
     <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.2.4" />
-    <PackageReference Include="MyJetWallet.Service.Bitgo.DepositDetector.Client" Version="2.2.10" />
+    <PackageReference Include="MyJetWallet.Service.Bitgo.DepositDetector.Client" Version="2.3.0" />
     <PackageReference Include="MyJetWallet.Service.Bitgo.WithdrawalProcessor.Client" Version="2.11.5" />
-    <PackageReference Include="MyJetWallet.Service.ClientBlocker.Client" Version="1.1.0" />
+    <PackageReference Include="MyJetWallet.Service.ClientBlocker.Client" Version="1.1.1" />
     <PackageReference Include="MyJetWallet.Service.EmailSender.Client" Version="1.1.12" />
     <PackageReference Include="MyJetWallet.Service.HighYieldEngine.Client" Version="1.0.86" />
     <PackageReference Include="MyJetWallet.Service.InternalTransfer.Client" Version="1.1.8" />
