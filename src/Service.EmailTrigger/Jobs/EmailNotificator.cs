@@ -10,7 +10,7 @@ using Service.ClientBlocker.Domain.Models;
 using Service.ClientProfile.Domain.Models;
 using Service.EmailSender.Grpc;
 using Service.EmailSender.Grpc.Models;
-using Service.HighYieldEngine.Domain.Models;
+using Service.HighYieldEngine.Domain.Models.Messages;
 using Service.InternalTransfer.Domain.Models;
 using Service.KYC.Domain.Models.Enum;
 using Service.KYC.Domain.Models.Messages;
