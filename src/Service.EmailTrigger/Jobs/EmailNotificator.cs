@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotNetCoreDecorators;
 using Microsoft.Extensions.Logging;
-using MyJetWallet.Sdk.Authorization.ServiceBus;
+using MyJetWallet.ServiceBus.SessionAudit.Models;
 using Service.Bitgo.DepositDetector.Domain.Models;
 using Service.Bitgo.WithdrawalProcessor.Domain.Models;
 using Service.ClientBlocker.Domain.Models;

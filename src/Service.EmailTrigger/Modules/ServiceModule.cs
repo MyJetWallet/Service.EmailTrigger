@@ -1,7 +1,7 @@
 ﻿using Autofac;
-using MyJetWallet.Sdk.Authorization.ServiceBus;
 using MyJetWallet.Sdk.NoSql;
 using MyJetWallet.Sdk.ServiceBus;
+using MyJetWallet.ServiceBus.SessionAudit.Models;
 using MyNoSqlServer.DataReader;
 using MyServiceBus.Abstractions;
 using Service.Bitgo.DepositDetector.Domain.Models;
