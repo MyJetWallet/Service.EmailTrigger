@@ -483,7 +483,7 @@ namespace Service.EmailTrigger.Jobs
             {
                 var pd = await _personalDataService.GetByIdAsync(new GetByIdRequest
                 {
-                    Id = message.ClientId
+                    Id = message.BeneficiaryClientId
                 });
                 if (pd.PersonalData != null)
                 {
@@ -497,7 +497,7 @@ namespace Service.EmailTrigger.Jobs
                         Amount = message.Amount.ToString(),
                     }).AsTask();
                     taskList.Add(task);
-                    _logger.LogInformation("Sending DepositSuccessfulEmail to userId {userId}", message.ClientId);
+                    _logger.LogInformation("Sending DepositSuccessfulEmail to userId {userId}", message.BeneficiaryClientId);
                 }
             }
 
