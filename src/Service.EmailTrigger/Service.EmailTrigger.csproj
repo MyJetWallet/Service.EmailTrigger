@@ -26,9 +26,9 @@
     <PackageReference Include="MyJetWallet.Service.HighYieldEngine.Client" Version="1.1.7" />
     <PackageReference Include="MyJetWallet.Service.InternalTransfer.Client" Version="1.1.9" />
     <PackageReference Include="MyJetWallet.Service.MessageTemplates.Client" Version="1.1.0" />
-    <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.3.0" />
-    <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.2.4" />
-    <PackageReference Include="MyJetWallet.Service.Service.KYC.Client" Version="1.6.0" />
+    <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.3.2" />
+    <PackageReference Include="MyJetWallet.Service.Registration.Client" Version="2.2.5" />
+    <PackageReference Include="MyJetWallet.Service.Service.KYC.Client" Version="1.6.2" />
     <PackageReference Include="MyJetWallet.Service.VerificationCodes.Client" Version="1.4.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="prometheus-net.AspNetCore" Version="6.0.0" />
